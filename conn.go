@@ -89,7 +89,7 @@ func uploadHandler(c *gin.Context) {
 		return
 	}
 
-	if data.Extra.Network == false {
+	/*if data.Extra.Network == false {
 		if data.Signature == "" {
 			c.String(http.StatusBadRequest, "signature is required")
 			return
@@ -106,7 +106,7 @@ func uploadHandler(c *gin.Context) {
 			c.String(http.StatusBadRequest, "signature is invalid")
 			return
 		}
-	}
+	}*/
 
 	buffer := bytes.NewBuffer(data.Hex)
 

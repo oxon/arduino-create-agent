@@ -26,7 +26,7 @@ import (
 var (
 	version               = "x.x.x-dev" //don't modify it, Jenkins will take care
 	git_revision          = "xxxxxxxx"  //don't modify it, Jenkins will take care
-	embedded_autoextract  = false
+	embedded_autoextract  = true
 	hibernate             = flag.Bool("hibernate", false, "start hibernated")
 	verbose               = flag.Bool("v", true, "show debug logging")
 	isLaunchSelf          = flag.Bool("ls", false, "launch self 5 seconds later")
@@ -194,12 +194,12 @@ func main() {
 			//go d.run()
 
 			go discoverLoop()
-
+			gin.SetMode(gin.ReleaseMode)
 			r := gin.New()
 
 			socketHandler := wsHandler().ServeHTTP
 
-			extraOriginStr := "https://create.arduino.cc, http://create.arduino.cc, https://create-dev.arduino.cc, http://create-dev.arduino.cc, https://create-intel.arduino.cc, http://create-intel.arduino.cc"
+			extraOriginStr := "https://create.arduino.cc, http://create.arduino.cc, https://create-dev.arduino.cc, http://create-dev.arduino.cc, https://create-intel.arduino.cc, http://create-intel.arduino.cc, http://localhost, http://localhost:8000, http://localhost:8080, https://localhost, https://localhost:8443, http://oxocard.ch, https://oxocard.ch, http://www.oxocard.ch, https://www.oxocard.ch"
 
 			for i := 8990; i < 9001; i++ {
 				extraOriginStr = extraOriginStr + ", http://localhost:" + strconv.Itoa(i) + ", https://localhost:" + strconv.Itoa(i)
@@ -286,59 +286,62 @@ const homeTemplateHtml = `<!DOCTYPE html>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.5/socket.io.min.js"></script>
 <script type="text/javascript">
     $(function() {
+	    var socket;
+	    var input = $('#input');
+	    var log = document.getElementById('log');
+	    var autoscroll = document.getElementById('autoscroll');
+	    var listenabled = document.getElementById('list');
+	    var messages = [];
 
-    var socket;
-    var msg = $("#msg");
-    var log = document.getElementById('log');
-    var pause = document.getElementById('myCheck');
-    var messages = [];
-    var only_log = true;
+	    function appendLog(msg) {
+	        if (listenabled.checked || (typeof msg === 'string' && msg.indexOf('{') !== 0 && msg.indexOf('list') !== 0)) {
+	            messages.push(msg);
+	            if (messages.length > 2000) {
+	                messages.shift();
+	            }
+	            var doScroll = log.scrollTop == log.scrollHeight - log.clientHeight;
+	            log.innerHTML = messages.join('<br>');
+	            if (autoscroll.checked && doScroll) {
+	                log.scrollTop = log.scrollHeight - log.clientHeight;
+	            }
+	        }
+	    }
 
-    function appendLog(msg) {
+	    $('#form').submit(function(e) {
+	    	e.preventDefault();
+	        if (!socket) {
+	            return false;
+	        }
+	        if (!input.val()) {
+	            return false;
+	        }
+	        socket.emit('command', input.val());
+	    });
 
-		if (!pause.checked && (only_log == false || (!(msg.indexOf("{") == 0) && !(msg.indexOf("list") == 0) && only_log == true))) {
-			messages.push(msg);
-			if (messages.length > 100) {
-				messages.shift();
-			}
-			var doScroll = log.scrollTop == log.scrollHeight - log.clientHeight;
-			log.innerHTML = messages.join("<br>");
-			if (doScroll) {
-				log.scrollTop = log.scrollHeight - log.clientHeight;
-			}
-		}
-    }
+	    $('#export').click(function() {
+	    	var link = document.createElement('a');
+	    	link.setAttribute('download', 'agent-log.txt');
+	    	var text = log.innerHTML.replace(/<br>/g, '\n');
+	    	link.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    		link.click();
+    	});
 
-    $("#form").submit(function() {
-        if (!socket) {
-            return false;
-        }
-        if (!msg.val()) {
-            return false;
-        }
-        socket.emit("command", msg.val());
-        if (msg.val().indexOf("log off") != -1) {only_log = true}
-        if (msg.val().indexOf("log on") != -1) {only_log = false}
-        msg.val("");
-        return false
-    });
-
-    if (window["WebSocket"]) {
-    	if (window.location.protocol === 'https:') {
-    		socket = io('https://{{$}}')
-    	} else {
-    		socket = io("http://{{$}}");
-    	}
-        socket.on("disconnect", function(evt) {
-            appendLog($("<div><b>Connection closed.</b></div>"))
-        });
-        socket.on("message", function(evt) {
-            appendLog(evt);
-        });
-    } else {
-        appendLog($("<div><b>Your browser does not support WebSockets.</b></div>"))
-    }
-    });
+	    if (window['WebSocket']) {
+	        if (window.location.protocol === 'https:') {
+	            socket = io('https://{{$}}')
+	        } else {
+	            socket = io('http://{{$}}');
+	        }
+	        socket.on('disconnect', function(evt) {
+	            appendLog($('<div><b>Connection closed.</b></div>'))
+	        });
+	        socket.on('message', function(evt) {
+	            appendLog(evt);
+	        });
+	    } else {
+	        appendLog($('<div><b>Your browser does not support WebSockets.</b></div>'))
+	    }
+	});
 </script>
 <style type="text/css">
 html {
@@ -351,42 +354,85 @@ body {
     margin: 0;
     width: 100%;
     height: 100%;
-    background: gray;
+    background: #00979d;
+    font-family: 'Lucida Grande', Lucida, Verdana, sans-serif;
 }
 
 #log {
     background: white;
     margin: 0;
-    padding: 0.5em 0.5em 0.5em 0.5em;
+    padding: .5em;
     position: absolute;
-    top: 0.5em;
-    left: 0.5em;
-    right: 0.5em;
+    top: .5em;
+    left: .5em;
+    right: .5em;
     bottom: 3em;
     overflow: auto;
 }
 
-#form {
-    padding: 0 0.5em 0 0.5em;
+.buttons {
+	display: flex;
+    padding: 0 .5em;
     margin: 0;
     position: absolute;
     bottom: 1em;
-    left: 0px;
-    width: 100%;
+    left: 0;
+    width: calc(100% - 1em);
     overflow: hidden;
 }
 
+#form {
+	display: inline-block;
+}
+
+#export {
+	float: right;
+	margin-left: auto;
+}
+
+#autoscroll,
+#list {
+	margin-left: 2em;
+	vertical-align: middle;
+}
+
+@media screen and (max-width: 950px) {
+	#form {
+		max-width: 60%;
+	}
+
+	#input {
+		max-width: 55%;
+	}
+}
+@media screen and (max-width: 825px) {
+	.buttons {
+		flex-direction: column;
+	}
+
+	#log {
+		bottom: 7em;
+	}
+
+	#autoscroll,
+	#list {
+		margin-left: 0;
+		margin-top: .5em;
+	}
+}
 </style>
 </head>
 <body>
 <div id="log"></div>
-<form id="form">
-    <input type="submit" value="Send" />
-    <input type="text" id="msg" size="64"/>
-    <input name="pause" type="checkbox" value="pause" id="myCheck"/> Pause
-    <!--<input type="button" value="Install Certificate" onclick="window.open('http://localhost:8991/certificate.crt')" />-->
-</form>
-</form>
+<div class="buttons">
+	<form id="form">
+	    <input type="submit" value="Send" />
+	    <input type="text" id="input" size="64"/>
+	</form>
+	<div><input name="pause" type="checkbox" checked id="autoscroll"/> Autoscroll</div>
+	<div><input name="list" type="checkbox" checked id="list"/> Toggle List</div>
+	<button id="export">Export Log</button>
+</div>
 </body>
 </html>
 `
