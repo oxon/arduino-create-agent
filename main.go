@@ -26,7 +26,7 @@ import (
 var (
 	version               = "x.x.x-dev" //don't modify it, Jenkins will take care
 	git_revision          = "xxxxxxxx"  //don't modify it, Jenkins will take care
-	embedded_autoextract  = false
+	embedded_autoextract  = true
 	hibernate             = flag.Bool("hibernate", false, "start hibernated")
 	verbose               = flag.Bool("v", true, "show debug logging")
 	isLaunchSelf          = flag.Bool("ls", false, "launch self 5 seconds later")
@@ -194,12 +194,12 @@ func main() {
 			//go d.run()
 
 			go discoverLoop()
-
+			gin.SetMode(gin.ReleaseMode)
 			r := gin.New()
 
 			socketHandler := wsHandler().ServeHTTP
 
-			extraOriginStr := "https://create.arduino.cc, http://create.arduino.cc, https://create-dev.arduino.cc, http://create-dev.arduino.cc, https://create-intel.arduino.cc, http://create-intel.arduino.cc"
+			extraOriginStr := "https://create.arduino.cc, http://create.arduino.cc, https://create-dev.arduino.cc, http://create-dev.arduino.cc, https://create-intel.arduino.cc, http://create-intel.arduino.cc, http://localhost, http://localhost:8000, http://localhost:8080, https://localhost, https://localhost:8443, http://oxocard.ch, https://oxocard.ch, http://www.oxocard.ch, https://www.oxocard.ch"
 
 			for i := 8990; i < 9001; i++ {
 				extraOriginStr = extraOriginStr + ", http://localhost:" + strconv.Itoa(i) + ", https://localhost:" + strconv.Itoa(i)
