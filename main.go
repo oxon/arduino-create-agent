@@ -215,7 +215,7 @@ func main() {
 				ValidateHeaders: false,
 			}))
 
-			r.LoadHTMLFiles("templates/nofirefox.html")
+			//r.LoadHTMLFiles("templates/nofirefox.html")
 
 			r.GET("/", homeHandler)
 			r.GET("/certificate.crt", certHandler)
