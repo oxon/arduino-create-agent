@@ -24,8 +24,8 @@ import (
 )
 
 var (
-	version               = "x.x.x-dev" //don't modify it, Jenkins will take care
-	git_revision          = "xxxxxxxx"  //don't modify it, Jenkins will take care
+	version               = "0.1 beta"
+//	git_revision          = ""  //don't modify it, Jenkins will take care
 	embedded_autoextract  = true
 	hibernate             = flag.Bool("hibernate", false, "start hibernated")
 	verbose               = flag.Bool("v", true, "show debug logging")
