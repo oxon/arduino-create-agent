@@ -78,7 +78,7 @@ func setupSysTrayReal() {
 
 	go func() {
 		for {
-			<-mPorgram.ClickedCh
+			<-mProgram.ClickedCh
 			open.Start("http://oxocard.ch/oxocard-blockly")
 		}
 	}()
