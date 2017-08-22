@@ -37,7 +37,6 @@ import (
 	"github.com/oxon/arduino-create-agent/icon"
 	"github.com/getlantern/systray"
 	"github.com/skratchdot/open-golang/open"
-	"go.bug.st/serial.v1"
 )
 
 func setupSysTray() {
@@ -64,26 +63,12 @@ func addRebootTrayElement() {
 func setupSysTrayReal() {
 
 	systray.SetIcon(icon.GetIcon())
+	mProgram := systray.AddMenuItem("Program Oxocard", "OxocardAgent")
 	mUrl := systray.AddMenuItem("Go to Oxocard-Website", "OxocardAgent")
-	//mDebug := systray.AddMenuItem("Open debug console", "Debug console")
-	//menuVer := systray.AddMenuItem("Agent version "+version+"-"+git_revision, "")
 	menuVer := systray.AddMenuItem("OxocardAgent version "+version, "")
-	//mPause := systray.AddMenuItem("Pause Agent", "")
 	mQuit := systray.AddMenuItem("Quit Agent", "")
 
 	menuVer.Disable()
-
-	/*go func() {
-		<-mPause.ClickedCh
-		ports, _ := serial.GetPortsList()
-		for _, element := range ports {
-			spClose(element)
-		}
-		systray.Quit()
-		*hibernate = true
-		log.Println("Restart becayse setup went wrong?")
-		restart("")
-	}()*/
 
 	go func() {
 		<-mQuit.ClickedCh
@@ -91,15 +76,13 @@ func setupSysTrayReal() {
 		exit()
 	}()
 
-/*	go func() {
+	go func() {
 		for {
-			<-mDebug.ClickedCh
-			logAction("log on")
-			open.Start("http://localhost" + port)
+			<-mPorgram.ClickedCh
+			open.Start("http://oxocard.ch/oxocard-blockly")
 		}
-	}()*/
+	}()
 
-	// We can manipulate the systray in other goroutines
 	go func() {
 		for {
 			<-mUrl.ClickedCh
