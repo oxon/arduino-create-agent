@@ -34,7 +34,7 @@ import (
 	"runtime"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/arduino/arduino-create-agent/icon"
+	"github.com/oxon/arduino-create-agent/icon"
 	"github.com/getlantern/systray"
 	"github.com/skratchdot/open-golang/open"
 	"go.bug.st/serial.v1"
