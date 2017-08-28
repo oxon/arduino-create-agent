@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/arduino/arduino-create-agent/killbrowser"
+	"github.com/oxon/arduino-create-agent/killbrowser"
 	"github.com/gin-gonic/gin"
 )
 

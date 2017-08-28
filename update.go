@@ -30,7 +30,7 @@
 package main
 
 import (
-	"github.com/arduino/arduino-create-agent/updater"
+	"github.com/oxon/arduino-create-agent/updater"
 	"github.com/gin-gonic/gin"
 	"github.com/kardianos/osext"
 )

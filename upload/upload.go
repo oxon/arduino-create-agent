@@ -18,7 +18,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/arduino/arduino-create-agent/utilities"
+	"github.com/oxon/arduino-create-agent/utilities"
 	shellwords "github.com/mattn/go-shellwords"
 	"github.com/pkg/errors"
 	"github.com/sfreiberg/simplessh"
