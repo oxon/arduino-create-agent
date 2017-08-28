@@ -90,7 +90,7 @@ func main() {
 
 			// Instantiate Tools
 			usr, _ := user.Current()
-			directory := filepath.Join(usr.HomeDir, ".arduino-create")
+			directory := filepath.Join(usr.HomeDir, ".oxocard-agent")
 			Tools = tools.Tools{
 				Directory: directory,
 				IndexURL:  *indexURL,
