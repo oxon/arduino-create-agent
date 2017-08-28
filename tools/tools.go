@@ -97,7 +97,7 @@ func (t *Tools) readMap() error {
 
 func dir() string {
 	usr, _ := user.Current()
-	return path.Join(usr.HomeDir, ".arduino-create")
+	return path.Join(usr.HomeDir, ".oxocard-agent")
 }
 
 // createDir creates the directory where the tools will be stored
